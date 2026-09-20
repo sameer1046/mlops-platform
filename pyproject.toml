@@ -1,0 +1,31 @@
+[project]
+name = "mlops-platform-aws-databricks"
+version = "0.1.0"
+description = "MLOps platform starter for AWS and Databricks"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.116.0",
+  "mlflow-skinny>=2.16.0",
+  "pydantic>=2.9.0",
+  "uvicorn>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "httpx>=0.28.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
