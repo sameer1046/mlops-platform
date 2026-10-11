@@ -23,3 +23,22 @@ def test_async_infer():
     resp = client.post("/infer/async", json={"user_id": "u1", "features": {"a": 1.0}})
     assert resp.status_code == 200
     assert resp.json()["state"] == "queued"
+
+
+def test_chat_uses_primary_provider():
+    resp = client.post("/chat", json={"tenant_id": "team-a", "prompt": "hello gateway"})
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["provider"] == "primary"
+    assert payload["fallback_used"] is False
+
+
+def test_chat_fallback_when_primary_fails():
+    resp = client.post(
+        "/chat",
+        json={"tenant_id": "team-a", "prompt": "[force-fail] trigger fallback"},
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["provider"] == "fallback"
+    assert payload["fallback_used"] is True

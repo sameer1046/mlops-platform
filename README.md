@@ -47,6 +47,22 @@ python -m mlops_platform.lifecycle.cli verify-mlflow \
   --allowed-stage Production
 ```
 
+Run an MLflow experiment smoke test:
+
+```bash
+python scripts/test_mlflow_experiment.py
+```
+
+Optional custom values:
+
+```bash
+python scripts/test_mlflow_experiment.py \
+  --tracking-uri http://localhost:5000 \
+  --experiment local-mlflow-smoke \
+  --run-name smoke-run-1 \
+  --steps 8
+```
+
 To stop:
 
 ```bash
@@ -94,3 +110,9 @@ docker compose down
 - Local Docker Compose sets `MLFLOW_TRACKING_URI=http://mlflow:5000` for the API
   container.
 - See `docs/reference-architecture.md` and `docs/test-matrix.md`.
+- Detailed architecture docs are available in:
+  - `docs/ai-gateway.md`
+  - `docs/architecture-overview.md`
+  - `docs/architecture-components.md`
+  - `docs/architecture-flows.md`
+  - `docs/architecture-environments.md`
