@@ -50,6 +50,9 @@ services:
     container_name: mlops-inference-api
     environment:
       MLFLOW_TRACKING_URI: http://mlflow:5000
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+      NVIDIA_MODEL_ID: ${NVIDIA_MODEL_ID:-meta/llama-3.2-11b-vision-instruct}
+      NVIDIA_VERIFY_SSL: ${NVIDIA_VERIFY_SSL:-false}
     ports:
       - "8000:8000"
     depends_on:

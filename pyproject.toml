@@ -27,5 +27,6 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.pytest.ini_options]
+addopts = "-p no:asyncio"
 pythonpath = ["src"]
 testpaths = ["tests"]

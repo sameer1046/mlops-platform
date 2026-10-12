@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from time import monotonic
 
 from .models import ChatRequest, ChatResponse, GatewayPolicy, make_trace_id
 from .providers import LLMProvider, ProviderError
@@ -31,14 +32,19 @@ class AIGateway:
                     )
                 )
                 continue
+            start_time = monotonic()
             try:
                 completion = provider.generate(request=request, model_id=route.model_id)
+                duration_ms = (monotonic() - start_time) * 1000.0
                 self.telemetry.emit(
                     GatewayTelemetryEvent(
                         event_type="request_succeeded",
                         provider=route.provider_name,
                         model_id=route.model_id,
                         trace_id=trace_id,
+                        prompt=request.prompt,
+                        completion=completion,
+                        latency_ms=duration_ms,
                     )
                 )
                 return ChatResponse(
@@ -49,6 +55,7 @@ class AIGateway:
                     fallback_used=index > 0,
                 )
             except ProviderError as exc:
+                duration_ms = (monotonic() - start_time) * 1000.0
                 last_error = str(exc)
                 self.telemetry.emit(
                     GatewayTelemetryEvent(
@@ -57,6 +64,8 @@ class AIGateway:
                         model_id=route.model_id,
                         trace_id=trace_id,
                         detail=last_error,
+                        prompt=request.prompt,
+                        latency_ms=duration_ms,
                     )
                 )
         raise ProviderError(f"all gateway routes failed: {last_error}")

@@ -1,8 +1,14 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from mlops_platform.api.app import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def disable_mlflow_telemetry_for_tests(monkeypatch):
+    monkeypatch.setenv("MLFLOW_TELEMETRY_ENABLED", "false")
 
 
 def test_health():
@@ -42,3 +48,28 @@ def test_chat_fallback_when_primary_fails():
     payload = resp.json()
     assert payload["provider"] == "fallback"
     assert payload["fallback_used"] is True
+
+
+def test_chat_ui_endpoint():
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert "MLOps AI Gateway" in resp.text
+
+    resp_ui = client.get("/ui")
+    assert resp_ui.status_code == 200
+
+
+def test_openai_chat_completions_endpoint():
+    resp = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "meta/llama-3.2-11b-vision-instruct",
+            "messages": [{"role": "user", "content": "hi"}],
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["object"] == "chat.completion"
+    assert len(data["choices"]) == 1
+    assert data["choices"][0]["message"]["role"] == "assistant"
+

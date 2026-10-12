@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+import mlflow
+from mlflow.tracking import MlflowClient
+
 
 @dataclass
 class MLflowModelStatus:
@@ -21,13 +24,7 @@ class MLflowRegistryClient:
         self._token = os.getenv("DATABRICKS_TOKEN")
         self._client = self._build_client()
 
-    def _build_client(self):
-        try:
-            import mlflow
-            from mlflow.tracking import MlflowClient
-        except ImportError as exc:  # pragma: no cover - dependency gate
-            raise RuntimeError("mlflow-skinny is required for registry operations") from exc
-
+    def _build_client(self) -> MlflowClient:
         if self._tracking_uri:
             mlflow.set_tracking_uri(self._tracking_uri)
         elif self._host and self._token:
